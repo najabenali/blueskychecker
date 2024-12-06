@@ -1,7 +1,7 @@
 {
   "name": "blueskychecker",
   "version": "1.0.0",
-  "description": "A Bluesky account checker that retrieves profile information.",
+  "description": "A Bluesky account checker tool.",
   "main": "api/server.js",
   "scripts": {
     "start": "node api/server.js",
@@ -15,12 +15,13 @@
     "body-parser": "^1.20.2",
     "concurrently": "^7.6.0",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "tailwindcss": "^3.3.0"
   },
   "keywords": ["bluesky", "account-checker", "api"],
-  "author": "Naja Benali",
+  "author": "Your Name",
   "license": "MIT"
 }
