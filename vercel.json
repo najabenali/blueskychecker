@@ -2,22 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/index.jsx",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "src/**/*.js",
-      "use": "@vercel/node"
+      "src": "public/index.php",
+      "use": "@vercel/php"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/server.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/src/index.jsx"
+      "dest": "public/index.php"
     }
   ]
 }
