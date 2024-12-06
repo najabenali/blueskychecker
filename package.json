@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node api/server.js",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-    "frontend": "cd src && npm start",
+    "frontend": "cd src && react-scripts start",
     "backend": "node api/server.js",
-    "build": "cd src && npm run build"
+    "build": "cd src && react-scripts build"
   },
   "dependencies": {
     "axios": "^1.4.0",
@@ -21,6 +21,6 @@
     "tailwindcss": "^3.3.0"
   },
   "keywords": ["bluesky", "account-checker", "api"],
-  "author": "Your Name",
+  "author": "Naja Benali",
   "license": "MIT"
 }
