@@ -3,13 +3,10 @@
   "builds": [
     {
       "src": "src/index.jsx",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
+      "use": "@vercel/node"
     },
     {
-      "src": "api/server.js",
+      "src": "src/**/*.js",
       "use": "@vercel/node"
     }
   ],
@@ -20,7 +17,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/src/index.jsx"
     }
   ]
 }
