@@ -1,23 +1,11 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "src/App.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/checker.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/checker",
-      "dest": "/api/checker.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/index.html"
-    }
-  ]
+    "version": 2,
+    "builds": [
+        { "src": "api/*.js", "use": "@vercel/node" },
+        { "src": "src/**/*.jsx", "use": "@vercel/static-build" }
+    ],
+    "routes": [
+        { "src": "/api/(.*)", "dest": "/api/$1" },
+        { "src": "/(.*)", "dest": "/index.html" }
+    ]
 }
