@@ -1,0 +1,20 @@
+{
+  "name": "blueskychecker",
+  "version": "1.0.0",
+  "description": "A Bluesky account checker using PHP",
+  "main": "index.php",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": "16.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/najabenali/blueskychecker.git"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
