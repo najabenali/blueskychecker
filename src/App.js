@@ -1,96 +1,88 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './App.scss';
 
-function App() {
-  const [bskyUsername, setBskyUsername] = useState('');
+const App = () => {
+  const [username, setUsername] = useState('');
   const [appPassword, setAppPassword] = useState('');
   const [usernames, setUsernames] = useState('');
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const handleCheck = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
     setLoading(true);
-    setError(null);
-
+    const usernamesList = usernames.split('\n').map(username => username.trim());
+    
     try {
-      const response = await fetch('/api/checker', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bskyUsername,
-          appPassword,
-          usernames: usernames.split('\n').filter(Boolean),
-        }),
+      // Make a POST request to the serverless API
+      const response = await axios.post('/api/checker', {
+        username,
+        appPassword,
+        usernames: usernamesList,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setResults(data.results);
-      } else {
-        setError(data.error);
-      }
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
+      
+      setResults(response.data);
+    } catch (error) {
+      console.error(error);
+      alert('Error occurred while fetching data.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="app">
-      <h1>Bluesky Bulk Checker</h1>
-      <p>Enter your Bluesky username and <strong>App Password</strong> below.</p>
-      <div className="credentials">
-        <input
-          type="text"
-          placeholder="Bluesky Username"
-          value={bskyUsername}
-          onChange={(e) => setBskyUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="App Password"
-          value={appPassword}
-          onChange={(e) => setAppPassword(e.target.value)}
-        />
-      </div>
-      <textarea
-        placeholder="Enter usernames, one per line..."
-        value={usernames}
-        onChange={(e) => setUsernames(e.target.value)}
-      />
-      <button onClick={handleCheck} disabled={loading}>
-        {loading ? 'Checking...' : 'Check Accounts'}
-      </button>
-      {error && <div className="error">{error}</div>}
-      {results.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Banned</th>
-              <th>Followers</th>
-              <th>Followings</th>
-              <th>Posts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((result) => (
-              <tr key={result.username}>
-                <td>{result.username}</td>
-                <td>{result.banned ? 'Yes' : 'No'}</td>
-                <td>{result.followers}</td>
-                <td>{result.followings}</td>
-                <td>{result.posts}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="App">
+      <h1>BlueSky Bulk Account Checker</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>BlueSky Username</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>App Password</label>
+          <input
+            type="password"
+            value={appPassword}
+            onChange={(e) => setAppPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Usernames (one per line)</label>
+          <textarea
+            value={usernames}
+            onChange={(e) => setUsernames(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" disabled={loading}>Check Accounts</button>
+      </form>
+
+      {loading && <p>Loading...</p>}
+
+      {results && (
+        <div>
+          <h2>Results</h2>
+          {results.map((result, index) => (
+            <div key={index}>
+              <h3>{result.username}</h3>
+              <p>Status: {result.status}</p>
+              <p>Followers: {result.followersCount}</p>
+              <p>Posts: {result.postsCount}</p>
+              <p>Likes: {result.likesCount}</p>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
-}
+};
 
 export default App;
