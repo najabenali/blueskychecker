@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import './styles/App.css';
+import Header from './components/Header';
+import AccountCard from './components/AccountCard';
+import Loader from './components/Loader';
 
 const App = () => {
   const [username, setUsername] = useState('');
@@ -7,13 +10,12 @@ const App = () => {
   const [accountList, setAccountList] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [connected, setConnected] = useState(false);
 
   const checkAccounts = async () => {
     setLoading(true);
     setResults([]);
-    const accounts = accountList.split('\n').filter((acc) => acc.trim() !== '');
-    
+    const accounts = accountList.split('\n').filter((a) => a.trim() !== '');
+
     try {
       const response = await fetch('/api/check-accounts', {
         method: 'POST',
@@ -22,9 +24,8 @@ const App = () => {
       });
       const data = await response.json();
       setResults(data);
-      setConnected(true);
     } catch (error) {
-      console.error('Failed to fetch data', error);
+      console.error('Error fetching accounts:', error);
     } finally {
       setLoading(false);
     }
@@ -32,54 +33,21 @@ const App = () => {
 
   return (
     <div className="app">
-      <h1>Bluesky Account Checker</h1>
+      <Header />
       <div className="form">
-        <input
-          type="text"
-          placeholder="Bluesky Username or Email"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="App Password"
-          value={appPassword}
-          onChange={(e) => setAppPassword(e.target.value)}
-        />
-        <textarea
-          placeholder="Enter account usernames (one per line)"
-          value={accountList}
-          onChange={(e) => setAccountList(e.target.value)}
-        />
+        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <input type="password" placeholder="App Password" value={appPassword} onChange={(e) => setAppPassword(e.target.value)} />
+        <textarea placeholder="Accounts (one per line)" value={accountList} onChange={(e) => setAccountList(e.target.value)} />
         <button onClick={checkAccounts} disabled={loading}>
           {loading ? 'Checking...' : 'Check Accounts'}
         </button>
       </div>
-      {connected && <p className="notification">Connected to Bluesky API!</p>}
-      {results.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Status</th>
-              <th>Followers</th>
-              <th>Following</th>
-              <th>Posts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((result, idx) => (
-              <tr key={idx}>
-                <td>{result.username}</td>
-                <td>{result.status}</td>
-                <td>{result.followers}</td>
-                <td>{result.following}</td>
-                <td>{result.posts}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {loading && <Loader />}
+      <div className="results">
+        {results.map((result, idx) => (
+          <AccountCard key={idx} {...result} />
+        ))}
+      </div>
     </div>
   );
 };

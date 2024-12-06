@@ -6,7 +6,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "src/package.json",
+      "src": "src/index.jsx",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build"
@@ -14,13 +14,7 @@
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/src/build/$1"
-    }
+    { "src": "/api/(.*)", "dest": "/api/server.js" },
+    { "src": "/(.*)", "dest": "/src/build/$1" }
   ]
 }

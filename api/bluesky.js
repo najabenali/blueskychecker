@@ -1,38 +1,41 @@
 const axios = require('axios');
 
-const AUTH_URL = 'https://bsky.social/xrpc/com.atproto.server.createSession';
-const ACCOUNT_INFO_URL = 'https://bsky.social/xrpc/app.bsky.actor.getProfile';
+/**
+ * Authenticate and fetch account data from Bluesky API
+ * @param {string} username - Bluesky username or email
+ * @param {string} appPassword - App password for Bluesky
+ * @param {Array<string>} accounts - List of accounts to check
+ * @returns {Promise<Array>} - Array of account data
+ */
+async function fetchBlueskyData(username, appPassword, accounts) {
+  const auth = `${username}:${appPassword}`;
+  const headers = {
+    Authorization: `Basic ${Buffer.from(auth).toString('base64')}`,
+  };
 
-async function authenticate(username, appPassword) {
-  try {
-    const response = await axios.post(AUTH_URL, {
-      identifier: username,
-      password: appPassword,
-    });
-
-    return response.data.accessJwt;
-  } catch (error) {
-    throw new Error('Authentication failed. Check your credentials.');
+  const results = [];
+  for (const account of accounts) {
+    try {
+      const { data } = await axios.get(
+        `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${account}`,
+        { headers }
+      );
+      results.push({
+        username: account,
+        status: 'active',
+        followers: data.followersCount || 0,
+        following: data.followingCount || 0,
+        posts: data.postsCount || 0,
+      });
+    } catch (error) {
+      results.push({
+        username: account,
+        status: error.response?.status === 404 ? 'suspended' : 'unknown error',
+      });
+    }
   }
+
+  return results;
 }
 
-async function fetchAccountData(sessionToken, handle) {
-  try {
-    const response = await axios.get(ACCOUNT_INFO_URL, {
-      headers: { Authorization: `Bearer ${sessionToken}` },
-      params: { actor: handle },
-    });
-
-    return {
-      handle,
-      followers: response.data.followersCount || 0,
-      followings: response.data.followsCount || 0,
-      posts: response.data.postsCount || 0,
-      suspended: response.data.did ? false : true,
-    };
-  } catch (error) {
-    throw new Error(`Failed to fetch data for ${handle}`);
-  }
-}
-
-module.exports = { authenticate, fetchAccountData };
+module.exports = { fetchBlueskyData };

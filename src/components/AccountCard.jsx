@@ -1,10 +1,12 @@
-const AccountCard = ({ data }) => (
-  <div className="bg-white shadow p-4 rounded mb-4">
-    <h2 className="text-lg font-semibold text-gray-700">{data.handle}</h2>
-    <p>Status: {data.suspended ? "❌ Suspended" : "✅ Active"}</p>
-    <p>Followers: {data.followers}</p>
-    <p>Following: {data.followings}</p>
-    <p>Posts: {data.posts}</p>
+import React from 'react';
+
+const AccountCard = ({ username, status, followers, following, posts }) => (
+  <div className="account-card">
+    <h3>{username}</h3>
+    <p>Status: {status}</p>
+    <p>Followers: {followers}</p>
+    <p>Following: {following}</p>
+    <p>Posts: {posts}</p>
   </div>
 );
 
