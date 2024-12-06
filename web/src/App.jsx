@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './App.scss';
 import { BskyAgent } from '@atproto/api';
 import toast, { Toaster } from 'react-hot-toast';
 
 function App() {
+  let skyAgent = null;
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [usernames, setUsernames] = useState('');
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  let skyAgent = null;
-
   const getAgent = async () => {
     if (skyAgent) return skyAgent;
     const agent = new BskyAgent({ service: 'https://bsky.social' });
+
     try {
       await agent.login({ identifier: username, password });
       toast.success('Connected to Bluesky!');
       skyAgent = agent;
       return agent;
     } catch (error) {
-      console.error(error);
+      console.error('Login failed:', error);
       toast.error('Login failed. Use an app password instead.');
       return null;
     }
@@ -29,6 +30,7 @@ function App() {
 
   const handleFetchDetails = async () => {
     setIsLoading(true);
+    setResults([]); // Clear previous results
     const agent = await getAgent();
     if (!agent) {
       setIsLoading(false);
@@ -36,12 +38,12 @@ function App() {
     }
 
     const usernamesList = usernames.split(',').map((u) => u.trim());
-    const resultsList = [];
+    const fetchedResults = [];
 
     for (const user of usernamesList) {
       try {
         const { data } = await agent.getProfile({ actor: user });
-        resultsList.push({
+        fetchedResults.push({
           username: user,
           followers: data.followersCount || 0,
           followings: data.followsCount || 0,
@@ -49,15 +51,15 @@ function App() {
           suspended: data.viewer?.blockedBy || false,
         });
       } catch (error) {
-        console.error(`Failed to fetch data for ${user}:`, error);
-        resultsList.push({
+        console.error(`Error fetching data for ${user}:`, error);
+        fetchedResults.push({
           username: user,
           error: 'Failed to fetch data',
         });
       }
     }
 
-    setResults(resultsList);
+    setResults(fetchedResults);
     setIsLoading(false);
   };
 
@@ -65,7 +67,7 @@ function App() {
     <div className="app">
       <div className="header">
         <h1>Bluesky Account Info Fetcher</h1>
-        <p>Enter multiple usernames to retrieve their stats.</p>
+        <p>Input multiple usernames (comma-separated) to fetch account details.</p>
       </div>
 
       <form
