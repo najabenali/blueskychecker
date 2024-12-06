@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
-import './styles/App.css';
 import axios from 'axios';
+import './styles/App.css';
 
 function App() {
   const [username, setUsername] = useState('');
-  const [appPassword, setAppPassword] = useState('');
+  const [password, setPassword] = useState('');
   const [accounts, setAccounts] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  
   const handleCheckAccounts = async () => {
+    const accountList = accounts.split('\n').map(account => account.trim()).filter(account => account);
+    if (!username || !password || accountList.length === 0) {
+      alert('Please provide username, password, and accounts list');
+      return;
+    }
+    
     setLoading(true);
-    const accountsList = accounts.split('\n');
     try {
-      const response = await axios.post('/api/check-accounts', { username, appPassword, accounts: accountsList });
+      const response = await axios.post('/api/check-accounts', {
+        username,
+        password,
+        accounts: accountList
+      });
       setResults(response.data);
     } catch (error) {
-      console.error('Error fetching account data:', error);
+      console.error('Error fetching account data', error);
+      alert('Failed to fetch account data');
     }
     setLoading(false);
   };
@@ -24,41 +34,44 @@ function App() {
   return (
     <div className="App">
       <h1>Bluesky Account Checker</h1>
-      <div className="input-container">
+      <div>
+        <label>Bluesky Username:</label>
         <input 
           type="text" 
-          placeholder="Bluesky Username" 
           value={username} 
-          onChange={e => setUsername(e.target.value)} 
+          onChange={(e) => setUsername(e.target.value)} 
         />
+      </div>
+      <div>
+        <label>Bluesky App Password:</label>
         <input 
           type="password" 
-          placeholder="App Password" 
-          value={appPassword} 
-          onChange={e => setAppPassword(e.target.value)} 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
         />
-        <textarea
-          placeholder="List of Account Usernames (separate by new line)"
-          value={accounts}
-          onChange={e => setAccounts(e.target.value)}
-        />
-        <button onClick={handleCheckAccounts} disabled={loading}>
-          {loading ? 'Checking...' : 'Check Accounts'}
-        </button>
       </div>
-
+      <div>
+        <label>Accounts (One per line):</label>
+        <textarea 
+          value={accounts} 
+          onChange={(e) => setAccounts(e.target.value)} 
+        />
+      </div>
+      <button onClick={handleCheckAccounts} disabled={loading}>
+        {loading ? 'Loading...' : 'Check Accounts'}
+      </button>
       <div className="results">
-        {results.length > 0 && results.map((account, idx) => (
-          <div key={idx} className="account-card">
-            <h3>{account.username}</h3>
-            {account.error ? (
-              <p>Error: {account.error}</p>
+        {results.map((result, index) => (
+          <div className="account-card" key={index}>
+            <h3>{result.username}</h3>
+            {result.error ? (
+              <p>{result.error}</p>
             ) : (
               <>
-                <p>Followers: {account.followers}</p>
-                <p>Following: {account.followings}</p>
-                <p>Posts: {account.posts}</p>
-                <p>Status: {account.suspended ? 'Suspended' : 'Active'}</p>
+                <p>Followers: {result.followersCount}</p>
+                <p>Following: {result.followingCount}</p>
+                <p>Posts: {result.postsCount}</p>
+                <p>Suspended: {result.suspended ? 'Yes' : 'No'}</p>
               </>
             )}
           </div>

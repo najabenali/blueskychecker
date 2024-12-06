@@ -1,24 +1,28 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const { fetchBlueskyData } = require('./bluesky');
+import express from 'express';
+import { checkAccount } from './bluesky.js';
+
 const app = express();
+const port = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
+// Middleware to parse JSON request bodies
+app.use(express.json());
 
+// Endpoint to check Bluesky account data
 app.post('/api/check-accounts', async (req, res) => {
-  console.log(req.body);  // Log the body being sent
-  const { username, appPassword, accounts } = req.body;
+  const { username, password, accounts } = req.body;
+
+  if (!username || !password || !accounts) {
+    return res.status(400).json({ error: 'Please provide username, password, and accounts list' });
+  }
 
   try {
-    // Call the function to fetch data from Bluesky API
-    const results = await fetchBlueskyData(username, appPassword, accounts);
+    const results = await checkAccount(username, password, accounts);
     res.status(200).json(results);
   } catch (error) {
-    console.error('Error: ', error);
-    res.status(500).json({ error: 'Failed to fetch data' });
+    res.status(500).json({ error: 'Failed to fetch data from Bluesky' });
   }
 });
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
