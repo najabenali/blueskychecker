@@ -1,33 +1,24 @@
 const express = require('express');
-const cors = require('cors');
+const bodyParser = require('body-parser');
 const { fetchBlueskyData } = require('./bluesky');
-
 const app = express();
-app.use(cors());
-app.use(express.json());
+
+app.use(bodyParser.json());
 
 app.post('/api/check-accounts', async (req, res) => {
+  console.log(req.body);  // Log the body being sent
   const { username, appPassword, accounts } = req.body;
-  if (!username || !appPassword || !accounts) {
-    return res.status(400).json({ error: 'Missing required parameters' });
-  }
 
   try {
+    // Call the function to fetch data from Bluesky API
     const results = await fetchBlueskyData(username, appPassword, accounts);
-    res.json(results);
+    res.status(200).json(results);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error: ', error);
+    res.status(500).json({ error: 'Failed to fetch data' });
   }
-  app.post('/api/check-accounts', async (req, res) => {
-  console.log('Request Body:', req.body);
-  try {
-    const results = await fetchBlueskyData(req.body.username, req.body.appPassword, req.body.accounts);
-    res.json(results);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-
 });
 
-module.exports = app;
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
