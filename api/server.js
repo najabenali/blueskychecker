@@ -18,6 +18,16 @@ app.post('/api/check-accounts', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
+  app.post('/api/check-accounts', async (req, res) => {
+  console.log('Request Body:', req.body);
+  try {
+    const results = await fetchBlueskyData(req.body.username, req.body.appPassword, req.body.accounts);
+    res.json(results);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+
 });
 
 module.exports = app;
