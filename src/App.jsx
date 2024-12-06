@@ -1,68 +1,87 @@
-import React, { useState } from "react";
-import axios from "axios";
-import Header from "./components/Header";
-import AccountCard from "./components/AccountCard";
-import Loader from "./components/Loader";
+import React, { useState } from 'react';
+import './styles/App.css';
 
 const App = () => {
-  const [username, setUsername] = useState("");
-  const [appPassword, setAppPassword] = useState("");
-  const [handles, setHandles] = useState("");
+  const [username, setUsername] = useState('');
+  const [appPassword, setAppPassword] = useState('');
+  const [accountList, setAccountList] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [connected, setConnected] = useState(false);
 
-  const authenticateAndFetchData = async () => {
+  const checkAccounts = async () => {
     setLoading(true);
-
+    setResults([]);
+    const accounts = accountList.split('\n').filter((acc) => acc.trim() !== '');
+    
     try {
-      const authResponse = await axios.post("/api/authenticate", {
-        username,
-        appPassword,
+      const response = await fetch('/api/check-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, appPassword, accounts }),
       });
-
-      const token = authResponse.data.token;
-      const handleList = handles.split("\n").map((h) => h.trim());
-
-      const resultsResponse = await axios.post("/api/check-accounts", {
-        token,
-        handles: handleList,
-      });
-
-      setResults(resultsResponse.data);
+      const data = await response.json();
+      setResults(data);
+      setConnected(true);
     } catch (error) {
-      alert("Error: Unable to fetch account data. Please try again.");
+      console.error('Failed to fetch data', error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Header />
-      <div className="container mx-auto p-4">
-        <div className="bg-white shadow rounded p-6 max-w-lg mx-auto">
-          <h2 className="text-xl font-bold mb-4 text-gray-700">
-            Bluesky Account Checker
-          </h2>
-          <input
-            type="text"
-            placeholder="Bluesky Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full mb-2 p-3 border rounded"
-          />
-          <input
-            type="password"
-            placeholder="App Password"
-            value={appPassword}
-            onChange={(e) => setAppPassword(e.target.value)}
-            className="w-full mb-2 p-3 border rounded"
-          />
-          <textarea
-            placeholder="Enter account handles (one per line)"
-            value={handles}
-            onChange={(e) => setHandles(e.target.value)}
-            className="w-full mb-4 p-3 border rounded"
-          />
-          <button
-            onClick={aut
+    <div className="app">
+      <h1>Bluesky Account Checker</h1>
+      <div className="form">
+        <input
+          type="text"
+          placeholder="Bluesky Username or Email"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="App Password"
+          value={appPassword}
+          onChange={(e) => setAppPassword(e.target.value)}
+        />
+        <textarea
+          placeholder="Enter account usernames (one per line)"
+          value={accountList}
+          onChange={(e) => setAccountList(e.target.value)}
+        />
+        <button onClick={checkAccounts} disabled={loading}>
+          {loading ? 'Checking...' : 'Check Accounts'}
+        </button>
+      </div>
+      {connected && <p className="notification">Connected to Bluesky API!</p>}
+      {results.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Status</th>
+              <th>Followers</th>
+              <th>Following</th>
+              <th>Posts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((result, idx) => (
+              <tr key={idx}>
+                <td>{result.username}</td>
+                <td>{result.status}</td>
+                <td>{result.followers}</td>
+                <td>{result.following}</td>
+                <td>{result.posts}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+export default App;
