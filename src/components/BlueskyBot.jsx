@@ -13,13 +13,22 @@ const BlueskyBot = ({ username, appPassword, accounts }) => {
       for (let account of accounts) {
         if (account.trim()) {
           try {
-            const response = await axios.get(`https://api.bsky.app/v1/accounts/${account.trim()}`, {
-              auth: {
-                username: username,
-                password: appPassword,
-              },
-            });
-            const { suspended, followers_count, following_count, posts_count } = response.data;
+            // Bluesky API request to get account information
+            const response = await axios.get(
+              `https://bsky.social/xrpc/com.atproto.server.getAccount`,
+              {
+                headers: {
+                  'Authorization': `Basic ${btoa(username + ':' + appPassword)}`,
+                },
+                params: {
+                  handle: account.trim(),
+                },
+              }
+            );
+            
+            const { data: accountInfo } = response;
+            const { suspended, followers_count, following_count, posts_count } = accountInfo;
+
             data.push({
               account,
               suspended,
