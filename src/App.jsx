@@ -4,79 +4,73 @@ import './styles/App.css';
 
 function App() {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [appPassword, setAppPassword] = useState('');
   const [accounts, setAccounts] = useState('');
-  const [results, setResults] = useState([]);
+  const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  const handleCheckAccounts = async () => {
-    const accountList = accounts.split('\n').map(account => account.trim()).filter(account => account);
-    if (!username || !password || accountList.length === 0) {
-      alert('Please provide username, password, and accounts list');
-      return;
-    }
-    
+  const [result, setResult] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
+    setStatus('');
+    setResult(null);
+
     try {
+      const accountsArray = accounts.split('\n').map(account => account.trim());
       const response = await axios.post('/api/check-accounts', {
         username,
-        password,
-        accounts: accountList
+        appPassword,
+        accounts: accountsArray,
       });
-      setResults(response.data);
+      setResult(response.data);
     } catch (error) {
-      console.error('Error fetching account data', error);
-      alert('Failed to fetch account data');
+      setStatus('Error fetching data');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="App">
+    <div className="app">
       <h1>Bluesky Account Checker</h1>
-      <div>
-        <label>Bluesky Username:</label>
-        <input 
-          type="text" 
-          value={username} 
-          onChange={(e) => setUsername(e.target.value)} 
-        />
-      </div>
-      <div>
-        <label>Bluesky App Password:</label>
-        <input 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-        />
-      </div>
-      <div>
-        <label>Accounts (One per line):</label>
-        <textarea 
-          value={accounts} 
-          onChange={(e) => setAccounts(e.target.value)} 
-        />
-      </div>
-      <button onClick={handleCheckAccounts} disabled={loading}>
-        {loading ? 'Loading...' : 'Check Accounts'}
-      </button>
-      <div className="results">
-        {results.map((result, index) => (
-          <div className="account-card" key={index}>
-            <h3>{result.username}</h3>
-            {result.error ? (
-              <p>{result.error}</p>
-            ) : (
-              <>
-                <p>Followers: {result.followersCount}</p>
-                <p>Following: {result.followingCount}</p>
-                <p>Posts: {result.postsCount}</p>
-                <p>Suspended: {result.suspended ? 'Yes' : 'No'}</p>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Username or Email</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>App Password</label>
+          <input
+            type="password"
+            value={appPassword}
+            onChange={(e) => setAppPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Accounts (one per line)</label>
+          <textarea
+            value={accounts}
+            onChange={(e) => setAccounts(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Check Accounts</button>
+      </form>
+      {loading && <div>Loading...</div>}
+      {status && <div>{status}</div>}
+      {result && (
+        <div>
+          <h2>Account Details</h2>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 }

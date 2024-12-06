@@ -1,25 +1,21 @@
-import express from 'express';
-import { checkAccount } from './bluesky.js';
+const express = require('express');
+const cors = require('cors');
+const bluesky = require('./bluesky'); // Make sure bluesky.js contains API logic
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware to parse JSON request bodies
+app.use(cors());
 app.use(express.json());
 
-// Endpoint to check Bluesky account data
 app.post('/api/check-accounts', async (req, res) => {
-  const { username, password, accounts } = req.body;
-
-  if (!username || !password || !accounts) {
-    return res.status(400).json({ error: 'Please provide username, password, and accounts list' });
-  }
+  const { username, appPassword, accounts } = req.body;
 
   try {
-    const results = await checkAccount(username, password, accounts);
-    res.status(200).json(results);
+    const result = await bluesky.checkAccounts(username, appPassword, accounts);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data from Bluesky' });
+    res.status(500).json({ message: 'Failed to fetch account data', error });
   }
 });
 

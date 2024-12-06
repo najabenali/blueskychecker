@@ -1,7 +1,6 @@
 {
   "name": "blueskychecker",
   "version": "1.0.0",
-  "main": "src/index.jsx",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
