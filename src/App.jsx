@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import './styles/App.css';
 import axios from 'axios';
 
-const BLUESKY_API_URL = 'https://bsky.social/x/actor/';
+const BLUESKY_API_URL = 'https://bsky.social/x/actor/'; // Bluesky's public endpoint
 
 function App() {
+  const [blueskyUsername, setBlueskyUsername] = useState('');
+  const [appPassword, setAppPassword] = useState('');
   const [usernames, setUsernames] = useState('');
   const [status, setStatus] = useState('Not connected');
   const [isConnected, setIsConnected] = useState(false);
@@ -12,13 +14,18 @@ function App() {
 
   // Function to check accounts
   const checkAccounts = async () => {
+    if (blueskyUsername.trim() === '' || appPassword.trim() === '') {
+      alert('Please provide your Bluesky username and app password!');
+      return;
+    }
+
     if (usernames.trim() === '') {
       alert('Please enter at least one username!');
       return;
     }
 
     const usernameList = usernames.split('\n').map(username => username.trim()).filter(username => username !== '');
-
+    
     setStatus('Connecting to Bluesky...');
     setIsConnected(true);
 
@@ -51,10 +58,14 @@ function App() {
   // Function to get account data from Bluesky API
   const getAccountData = async (username) => {
     try {
-      const response = await axios.get(`${BLUESKY_API_URL}${username}`);
-      
+      // The username and password will be passed here in a POST request for authentication
+      const response = await axios.post(`${BLUESKY_API_URL}${username}`, {
+        username: blueskyUsername,
+        password: appPassword
+      });
+
       const account = response.data; // Assuming response contains user data object
-      
+
       // Check if the account is suspended (the presence of data indicates the user exists)
       const suspended = account.error ? 'Suspended or Error' : 'Active';
 
@@ -80,15 +91,35 @@ function App() {
   return (
     <div className="app-container">
       <h1>Bluesky Account Checker</h1>
+
+      <div className="authentication">
+        <input
+          type="text"
+          value={blueskyUsername}
+          onChange={(e) => setBlueskyUsername(e.target.value)}
+          placeholder="Enter your Bluesky username"
+          className="auth-input"
+        />
+        <input
+          type="password"
+          value={appPassword}
+          onChange={(e) => setAppPassword(e.target.value)}
+          placeholder="Enter your app password"
+          className="auth-input"
+        />
+      </div>
+
       <textarea
         value={usernames}
         onChange={(e) => setUsernames(e.target.value)}
         placeholder="Enter account usernames, each on a new line"
         rows="10"
         cols="30"
+        className="input-textarea"
       />
-      <br />
-      <button onClick={checkAccounts}>Check Accounts</button>
+      
+      <button onClick={checkAccounts} className="check-btn">Check Accounts</button>
+      
       <div>
         <p>Status: {status}</p>
       </div>

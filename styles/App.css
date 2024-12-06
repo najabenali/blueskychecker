@@ -1,50 +1,82 @@
 /* src/styles/App.css */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f6f8;
   color: #333;
+  margin: 0;
+  padding: 0;
 }
 
 .app-container {
+  max-width: 900px;
+  margin: 0 auto;
   padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-textarea {
+h1 {
+  text-align: center;
+  color: #4CAF50;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.authentication {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.auth-input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-textarea {
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  resize: vertical;
 }
 
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
+.check-btn {
   background-color: #4CAF50;
   color: white;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
   border: none;
   border-radius: 5px;
+  display: block;
+  width: 100%;
 }
 
-button:hover {
+.check-btn:hover {
   background-color: #45a049;
-}
-
-.status {
-  margin-top: 10px;
-  padding: 10px;
-  font-size: 16px;
 }
 
 .notification {
   position: fixed;
-  top: 10px;
-  right: 10px;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #4CAF50;
   color: white;
-  padding: 15px;
+  padding: 10px 20px;
   border-radius: 5px;
   display: none;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .notification.show {
@@ -58,15 +90,24 @@ button:hover {
 .result {
   background-color: #ffffff;
   border-radius: 5px;
-  padding: 10px;
+  padding: 15px;
   margin-bottom: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .result h3 {
-  margin: 0;
+  margin-top: 0;
+  color: #333;
 }
 
 .result p {
   margin: 5px 0;
+}
+
+.result .suspended {
+  color: red;
+}
+
+.result .active {
+  color: green;
 }
