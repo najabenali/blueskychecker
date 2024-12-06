@@ -1,5 +1,5 @@
 import React from 'react';
-import './styles/App.css';
+import '../styles/App.css';
 import AccountChecker from './components/AccountChecker';
 
 const App = () => (
